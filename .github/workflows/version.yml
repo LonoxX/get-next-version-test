@@ -3,66 +3,25 @@ on:
   push:
     branches:
       - main
-
 permissions:
   contents: write
-
 jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
-
+    
     steps:
     - name: Clone repository
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
         ref: main
-
     - name: Get net version
       uses: thenativeweb/get-next-version@main
       id: get_next_version
-
     - name: Create New Release
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       run: |
         NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
         git tag $NEXT_VERSION
         git push origin $NEXT_VERSION
-
-    - name: Get Latest Release
-      id: get_latest_release
-      uses: actions/github-script@v4
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        script: |
-          const response = await github.repos.getLatestRelease({
-            owner: context.repo.owner,
-            repo: context.repo.repo
-          });
-          console.log(response.data.tag_name);
-          
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Generate Changelog
-      id: generate_changelog
-      run: |
-        CHANGELOG=$(git log --pretty=format:"%h %s (%an in %h)" ${{ steps.get_latest_release.outputs.tag_name }}..HEAD)
-        echo "::set-output name=changelog::$CHANGELOG"
-
-    - name: Create GitHub Release
-      if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
-      uses: softprops/action-gh-release@v1
-      with:
-        files: '**/*'
-        tag_name: ${{ steps.get_next_version.outputs.version }}
-        release_name: Release ${{ steps.get_next_version.outputs.version }}
-        body: |
-          ✨ What's Changed
-
-          ${{ steps.generate_changelog.outputs.changelog }}
-
-          Full Changelog: ${{ steps.get_latest_release.outputs.tag_name }}..HEAD
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
