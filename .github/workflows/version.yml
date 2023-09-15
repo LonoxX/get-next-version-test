@@ -18,9 +18,11 @@ jobs:
       with:
         fetch-depth: 0
         ref: main
+
     - name: Get net version
       uses: thenativeweb/get-next-version@main
       id: get_next_version
+
     - name: Create New Release
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       run: |
@@ -49,7 +51,6 @@ jobs:
       with:
         files: '**/*'
         tag_name: ${{ steps.get_latest_release.outputs.tag_name }}
-        release_name: Release ${{ steps.get_latest_release.outputs.tag_name }}
         body: |
           ✨ What's Changed
 
@@ -58,4 +59,3 @@ jobs:
           Full Changelog: ${{ steps.get_latest_release.outputs.tag_name }}..HEAD
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
