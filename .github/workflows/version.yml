@@ -45,6 +45,12 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+    - name: Generate Changelog
+      id: generate_changelog
+      run: |
+        CHANGELOG=$(git log --pretty=format:"%h %s (%an in %h)" ${{ steps.get_latest_release.outputs.tag_name }}..HEAD)
+        echo "::set-output name=changelog::$CHANGELOG"
+
     - name: Create GitHub Release
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       uses: softprops/action-gh-release@v1
@@ -55,7 +61,7 @@ jobs:
         body: |
           ✨ What's Changed
 
-          $(git log --pretty=format:"%h %s (%an in %h)" ${{ steps.get_latest_release.outputs.tag_name }}..HEAD)
+          ${{ steps.generate_changelog.outputs.changelog }}
 
           Full Changelog: ${{ steps.get_latest_release.outputs.tag_name }}..HEAD
       env:
