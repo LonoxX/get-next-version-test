@@ -33,8 +33,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: '**/*'
-        tag_name: $NEXT_VERSION
-        release_name: Release $NEXT_VERSION
-        body: Release notes for version $NEXT_VERSION
+        tag_name: ${{ steps.get_next_version.outputs.version }}
+        release_name: Release ${{ steps.get_next_version.outputs.version }}
+        body: Release notes for version ${{ steps.get_next_version.outputs.version }}
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
