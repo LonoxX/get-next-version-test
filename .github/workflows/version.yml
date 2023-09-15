@@ -28,13 +28,34 @@ jobs:
         git tag $NEXT_VERSION
         git push origin $NEXT_VERSION
 
+    - name: Get Latest Release
+      id: get_latest_release
+      uses: actions/github-script@v4
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const response = await github.repos.getLatestRelease({
+            owner: context.repo.owner,
+            repo: context.repo.repo
+          });
+          console.log(response.data.tag_name);
+          
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Create GitHub Release
       if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
       uses: softprops/action-gh-release@v1
       with:
         files: '**/*'
-        tag_name: ${{ steps.get_next_version.outputs.version }}
-        release_name: Release ${{ steps.get_next_version.outputs.version }}
-        body: Release notes for version ${{ steps.get_next_version.outputs.version }}
+        tag_name: ${{ steps.get_latest_release.outputs.tag_name }}
+        release_name: Release ${{ steps.get_latest_release.outputs.tag_name }}
+        body: |
+          ✨ What's Changed
+
+          $(git log --pretty=format:"%h %s (%an in %h)" ${{ steps.get_latest_release.outputs.tag_name }}..HEAD)
+
+          Full Changelog: ${{ steps.get_latest_release.outputs.tag_name }}..HEAD
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
