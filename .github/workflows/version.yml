@@ -18,9 +18,8 @@ jobs:
       uses: thenativeweb/get-next-version@main
       id: get_next_version
     - name: Create New Release
-        if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
-        run: |
-          NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
-          git tag $NEXT_VERSION
-          git push origin $NEXT_VERSION
-
+      if: ${{ steps.get_next_version.outputs.hasNextVersion == 'true' }}
+      run: |
+        NEXT_VERSION=${{ steps.get_next_version.outputs.version }}
+        git tag $NEXT_VERSION
+        git push origin $NEXT_VERSION
