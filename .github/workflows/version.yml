@@ -50,7 +50,8 @@ jobs:
       uses: softprops/action-gh-release@v1
       with:
         files: '**/*'
-        tag_name: ${{ steps.get_latest_release.outputs.tag_name }}
+        tag_name: ${{ steps.get_next_version.outputs.version }}
+        release_name: Release ${{ steps.get_next_version.outputs.version }}
         body: |
           ✨ What's Changed
 
